@@ -1,5 +1,6 @@
 name: Cloudflare compatibility
 # Cloudflare production branch: cloudflare-workers
+# Trigger Cloudflare after branch control confirmation
 
 on:
   push:
