@@ -31,3 +31,6 @@ jobs:
 
       - name: Check vinext compatibility
         run: npx --yes vinext check
+
+      - name: Build Cloudflare output with vinext
+        run: npm run build:vinext
