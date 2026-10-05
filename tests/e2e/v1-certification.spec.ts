@@ -45,7 +45,9 @@ test("QA-V1-002 hora y personas se reflejan en el resumen superior", async ({ pa
 
 test("QA-V1-003 lista contiene 96 mesas y filtros 61/35", async ({ page }) => {
   await page.getByRole("button", { name: "Lista" }).click();
-  const rows = page.locator("button").filter({ hasText: /^Mesa / });
+  const rows = page.locator("button").filter({
+    has: page.locator("strong", { hasText: /^Mesa / }),
+  });
   await expect(rows).toHaveCount(96);
 
   await page.getByRole("button", { name: "Planta baja" }).click();
