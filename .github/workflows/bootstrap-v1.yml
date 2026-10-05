@@ -32,3 +32,5 @@ jobs:
           git add -A
           git commit -m "Import Equis Table Selector V1 source"
           git push
+
+# retry after restoring the missing archive tail
