@@ -28,6 +28,9 @@ jobs:
       - name: Install existing dependencies
         run: npm ci
 
+      - name: Align React for vinext RSC runtime
+        run: npm install react@19.3.0 react-dom@19.3.0
+
       - name: Initialize vinext for Cloudflare Workers
         run: >
           npx --yes vinext@latest init
