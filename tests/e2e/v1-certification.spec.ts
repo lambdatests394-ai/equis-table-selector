@@ -50,10 +50,10 @@ test("QA-V1-003 lista contiene 96 mesas y filtros 61/35", async ({ page }) => {
   });
   await expect(rows).toHaveCount(96);
 
-  await page.getByRole("button", { name: "Planta baja" }).click();
+  await page.getByRole("button", { name: "Planta baja", exact: true }).click();
   await expect(rows).toHaveCount(61);
 
-  await page.getByRole("button", { name: "Planta alta" }).click();
+  await page.getByRole("button", { name: "Planta alta", exact: true }).click();
   await expect(rows).toHaveCount(35);
 });
 
