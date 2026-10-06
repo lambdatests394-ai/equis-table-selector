@@ -1,0 +1,38 @@
+name: Cloudflare compatibility
+# Cloudflare production branch: cloudflare-workers
+# Trigger Cloudflare after branch control confirmation
+
+on:
+  push:
+    branches:
+      - cloudflare-workers
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify table catalog
+        run: npm run verify
+
+      - name: Build Next.js baseline
+        run: npm run build
+
+      - name: Check vinext compatibility
+        run: npx --yes vinext check
+
+      - name: Build Cloudflare output with vinext
+        run: npm run build:vinext

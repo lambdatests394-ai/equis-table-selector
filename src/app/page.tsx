@@ -10,15 +10,38 @@ import { ClubTable, floorLabel } from "@/lib/tables";
 
 type Screen = "selector" | "review" | "sent";
 
+const MONTERREY_TIME_ZONE = "America/Monterrey";
+
 const dateLabel = new Intl.DateTimeFormat("es-MX", {
   weekday: "short",
   day: "numeric",
   month: "short",
-  timeZone: "America/Monterrey",
+  timeZone: MONTERREY_TIME_ZONE,
 });
 
+function monterreyDateKey(date = new Date()) {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: MONTERREY_TIME_ZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(date);
+
+  const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  return `${values.year}-${values.month}-${values.day}`;
+}
+
+function nextFridayFrom(dateKey: string) {
+  const [year, month, day] = dateKey.split("-").map(Number);
+  const cursor = new Date(Date.UTC(year, month - 1, day));
+  const daysUntilFriday = (5 - cursor.getUTCDay() + 7) % 7;
+  cursor.setUTCDate(cursor.getUTCDate() + daysUntilFriday);
+  return cursor.toISOString().slice(0, 10);
+}
+
 export default function Home() {
-  const [date, setDate] = useState("2026-10-09");
+  const [minDate] = useState(monterreyDateKey);
+  const [date, setDate] = useState(() => nextFridayFrom(monterreyDateKey()));
   const [time, setTime] = useState("22:30");
   const [people, setPeople] = useState(4);
   const [mode, setMode] = useState<AvailabilityMode>("normal");
@@ -56,7 +79,7 @@ export default function Home() {
                 <div className="flex items-center gap-2 text-sm font-bold text-white"><CalendarDays aria-hidden="true" className="size-4 text-cyan-300" /> Datos para probar la disponibilidad</div>
               </CardHeader>
               <CardContent className="grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-4">
-                <label className="grid gap-1.5 text-xs font-semibold text-slate-400">Fecha<input type="date" value={date} min="2026-10-05" onChange={(event) => setDate(event.target.value)} className="min-h-11 rounded-xl border border-white/12 bg-[#080a10] px-3 text-sm text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300" /></label>
+                <label className="grid gap-1.5 text-xs font-semibold text-slate-400">Fecha<input type="date" value={date} min={minDate} onChange={(event) => setDate(event.target.value)} className="min-h-11 rounded-xl border border-white/12 bg-[#080a10] px-3 text-sm text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300" /></label>
                 <label className="grid gap-1.5 text-xs font-semibold text-slate-400">Hora<select value={time} onChange={(event) => setTime(event.target.value)} className="min-h-11 rounded-xl border border-white/12 bg-[#080a10] px-3 text-sm text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300">{["21:30","22:00","22:30","23:00","23:30","00:00","00:30","01:00","01:30","02:00","02:30","03:00","03:30"].map((value) => <option key={value}>{value}</option>)}</select></label>
                 <label className="grid gap-1.5 text-xs font-semibold text-slate-400">Personas<select value={people} onChange={(event) => setPeople(Number(event.target.value))} className="min-h-11 rounded-xl border border-white/12 bg-[#080a10] px-3 text-sm text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300">{Array.from({ length: 8 }, (_, index) => index + 1).map((value) => <option key={value} value={value}>{value} {value === 1 ? "persona" : "personas"}</option>)}</select></label>
                 <label className="grid gap-1.5 text-xs font-semibold text-slate-400">Estado de prueba<select value={mode} onChange={(event) => setMode(event.target.value as AvailabilityMode)} className="min-h-11 rounded-xl border border-white/12 bg-[#080a10] px-3 text-sm text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300"><option value="normal">Normal</option><option value="error">Error de carga</option><option value="empty">Sin disponibilidad</option><option value="selection-lost">Mesa deja de estar disponible</option></select></label>

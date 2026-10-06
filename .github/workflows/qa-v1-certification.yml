@@ -1,0 +1,43 @@
+name: QA V1 certification
+
+on:
+  push:
+    branches:
+      - qa-v1-certification
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    env:
+      EQUIS_BASE_URL: https://equis-table-selector.lambdatests394.workers.dev
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install project dependencies
+        run: npm ci
+
+      - name: Install Playwright test runner
+        run: npm install --no-save @playwright/test@latest
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Execute V1 certification suite
+        run: npx playwright test
+
+      - name: Upload QA report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-v1-playwright-report
+          path: playwright-report
+          if-no-files-found: ignore
